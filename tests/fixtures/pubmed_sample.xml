@@ -1,0 +1,63 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PubmedArticleSet PUBLIC "-//NLM//DTD PubMedArticle, 1st January 2025//EN" "https://dtd.nlm.nih.gov/ncbi/pubmed/out/pubmed_250101.dtd">
+<PubmedArticleSet>
+  <!-- 1: structured abstract (labelled parts, inline markup) and markup in the title -->
+  <PubmedArticle>
+    <MedlineCitation Status="MEDLINE" Owner="NLM">
+      <PMID Version="1">1001</PMID>
+      <Article PubModel="Print">
+        <Journal><Title>Journal of Tests</Title></Journal>
+        <ArticleTitle>Effect of <i>Escherichia coli</i> on H<sub>2</sub>O uptake in mice.</ArticleTitle>
+        <Abstract>
+          <AbstractText Label="BACKGROUND" NlmCategory="BACKGROUND">Water uptake by <i>E. coli</i> is poorly understood.</AbstractText>
+          <AbstractText Label="METHODS" NlmCategory="METHODS">We measured H<sub>2</sub>O flux in 20 mice.</AbstractText>
+          <AbstractText Label="RESULTS" NlmCategory="RESULTS">Uptake increased by 30%.</AbstractText>
+          <CopyrightInformation>Copyright 2020 Test Publisher.</CopyrightInformation>
+        </Abstract>
+        <Language>eng</Language>
+      </Article>
+    </MedlineCitation>
+  </PubmedArticle>
+  <!-- 2: no abstract -->
+  <PubmedArticle>
+    <MedlineCitation Status="MEDLINE" Owner="NLM">
+      <PMID Version="1">1002</PMID>
+      <Article PubModel="Print">
+        <ArticleTitle>A letter about nothing in particular.</ArticleTitle>
+        <Language>eng</Language>
+      </Article>
+    </MedlineCitation>
+  </PubmedArticle>
+  <!-- 3: non-English (title is the bracketed English translation, as in real records) -->
+  <PubmedArticle>
+    <MedlineCitation Status="MEDLINE" Owner="NLM">
+      <PMID Version="1">1003</PMID>
+      <Article PubModel="Print">
+        <ArticleTitle>[Treatment of hypertension in the elderly].</ArticleTitle>
+        <Abstract><AbstractText>Die Behandlung der Hypertonie bei älteren Patienten wird diskutiert.</AbstractText></Abstract>
+        <Language>ger</Language>
+      </Article>
+      <OtherAbstract Type="Publisher" Language="ger"><AbstractText>Deutscher Text.</AbstractText></OtherAbstract>
+    </MedlineCitation>
+  </PubmedArticle>
+  <!-- 4: plain English abstract ending with an old MEDLINE truncation marker -->
+  <PubmedArticle>
+    <MedlineCitation Status="MEDLINE" Owner="NLM">
+      <PMID Version="1">1004</PMID>
+      <Article PubModel="Print">
+        <ArticleTitle>Serum lipids and coronary heart disease</ArticleTitle>
+        <Abstract><AbstractText>Serum cholesterol was measured in 500 men. High levels predicted events.(ABSTRACT TRUNCATED)</AbstractText></Abstract>
+        <Language>eng</Language>
+      </Article>
+    </MedlineCitation>
+  </PubmedArticle>
+  <!-- 5: book record, must be ignored -->
+  <PubmedBookArticle>
+    <BookDocument>
+      <PMID Version="1">1005</PMID>
+      <ArticleTitle>GeneReviews chapter</ArticleTitle>
+      <Abstract><AbstractText>Book text that should not be used.</AbstractText></Abstract>
+      <Language>eng</Language>
+    </BookDocument>
+  </PubmedBookArticle>
+</PubmedArticleSet>
