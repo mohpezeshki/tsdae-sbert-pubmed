@@ -13,6 +13,9 @@ EMNLP 2021) on biomedical text:
 **Hypothesis.** TSDAE pre-training on the target domain, followed by NLI training (model **D**), beats NLI
 training alone (model **C**) on biomedical retrieval, while general-domain STSb stays about the same.
 
+**Result so far (one seed, quick run).** It holds: D beats C by 21.5 nDCG@10 points on PubMed and 5.3 on
+NanoBEIR, with STSb unchanged. TSDAE alone (B) retrieves better still. See [Results](#results).
+
 ## Pipeline
 
 ```
@@ -44,7 +47,8 @@ tsdae_sbert_pubmed/
   train_nli.py       step 2: --start none | <local model folder>
   evaluate.py        four-model comparison; writes results.csv and prints it
 notebook/colab.ipynb runs the same scripts on Colab (no duplicated logic)
-notebook/explore_pubmed.ipynb  per-file yield, publication years and sample pairs (helps pick --file-start)
+notebook/explore_pubmed.ipynb  per-file yield, publication years and sample pairs (helps pick --file-start);
+                     on Colab it clones the repo itself
 tests/               parser unit tests (fixture XML) and an opt-in end-to-end smoke test
 ```
 
@@ -68,7 +72,7 @@ pytest -q                      # parser tests, no network needed
 ### Colab
 
 Open `notebook/colab.ipynb`, select a T4 GPU, set `REPO_DIR` (where this repo lives on your Drive) and
-`QUICK`, then run all. Models, prepared data and `results.csv` are written to
+`QUICK` (`True`: 100k TSDAE sentences, `False`: 300k), then run all. Models, prepared data and `results.csv` are written to
 `MyDrive/tsdae-sbert-pubmed-outputs/{quick|full}`. Raw XML goes to the VM's local disk.
 
 ### Local
@@ -92,8 +96,9 @@ rejected, so the run can never silently download a different model.
 
 | Setting | `--tsdae-sentences` | TSDAE steps (batch 16) | NLI steps per model (100k triplets, batch 32) |
 |---|---|---|---|
-| Quick test (default) | 20,000 | 1,250 | ~3,125 |
-| Full run | 300,000 | 18,750 | ~3,125 |
+| CLI default | 20,000 | 1,250 | ~3,125 |
+| Colab quick (`QUICK = True`) | 100,000 | 6,250 | ~3,125 |
+| Full run (`QUICK = False`) | 300,000 | 18,750 | ~3,125 |
 
 ### Runtime, memory and disk
 
@@ -130,18 +135,34 @@ What to compare:
 
 ## Results
 
-### Current pipeline
+### Current pipeline (Colab quick run)
 
-Fill in after a run of this repo's code. These are placeholders, not results.
+Settings: first 8 baseline files (`--file-start 0`, mostly 1970s text), 100,000 TSDAE sentences, 100,000 NLI
+triplets, seed 42, everything else at the defaults in `config.py`. Run on a Colab T4.
 
 | Model | PubMed nDCG@10 | NanoBEIR bio nDCG@10 | STSb dev Spearman |
 |---|---|---|---|
-| A. bert (no training) | – | – | – |
-| B. TSDAE only | – | – | – |
-| C. bert + NLI (control) | – | – | – |
-| D. TSDAE + NLI | – | – | – |
+| A. bert (no training) | 0.0436 | 0.0162 | 0.3173 |
+| B. TSDAE only | **0.8162** | **0.2600** | 0.7095 |
+| C. bert + NLI (control) | 0.4864 | 0.1690 | 0.8359 |
+| D. TSDAE + NLI | 0.7017 | 0.2220 | **0.8411** |
 
-Run settings (files, `--tsdae-sentences`, seed): –
+What this run shows:
+
+- **D beats C, as hypothesised.** TSDAE before NLI adds 21.5 nDCG@10 points on PubMed (0.486 → 0.702) and 5.3
+  points on NanoBEIR (0.169 → 0.222). STSb does not get worse (0.836 → 0.841). The NanoBEIR gap is well above
+  the 1–2 points expected from noise, but this is still a single seed.
+- **TSDAE alone is the best retriever here.** B beats D by 11.5 points on PubMed and 3.8 points on NanoBEIR.
+  NLI training gives the best STSb score (D: 0.841 vs. B: 0.710) but costs part of the biomedical retrieval
+  gain. For biomedical retrieval only, model B is the better choice in this setup.
+- **Much stronger than the earlier run.** Compared with the superseded run below, B went from 0.29 to 0.82 on
+  PubMed and D from 0.49 to 0.70. Two things changed at once: the fixes (the decoder is now trained, and C and D
+  get the same NLI order) and 5× more TSDAE sentences (100k vs. 20k). This run cannot tell how much each one
+  contributed.
+- **Caveat on the PubMed column.** The dev abstracts are held out from TSDAE training, but they come from the
+  same 8 files and the same era as the TSDAE sentences. The task is also easy (one relevant document among
+  2,000), so it favours a model adapted to exactly this text. NanoBEIR is the more independent check, and it
+  shows the same ranking (B > D > C > A).
 
 ### Earlier run with the original Colab code (superseded)
 
@@ -170,14 +191,15 @@ What this run shows:
   - The weakened TSDAE described above.
   - Only 20k TSDAE sentences.
   - 1970s PubMed text (the first 8 files), while the evaluation sets are modern.
-  - 100k NLI steps may override what TSDAE learned.
+  - Training on 100k NLI triplets (about 3,125 steps) may override what TSDAE learned.
 
 Next runs to try, in order:
 
-1. The current pipeline with the same quick settings, to see what the fixes change.
-2. The full setting (`--tsdae-sentences 300000`).
-3. Newer abstracts (`--file-start -8`).
-4. Two or three `--seed` values for C and D, to measure the noise.
+1. The current pipeline at 20k TSDAE sentences (`--tsdae-sentences 20000`, the setting of the superseded run), to
+   separate the effect of the fixes from the effect of more data.
+2. Two or three `--seed` values for C and D (and B), to measure the noise.
+3. The full setting (`--tsdae-sentences 300000`).
+4. Newer abstracts (`--file-start -8`), closer in era to the NanoBEIR corpora.
 
 ## Known limitations
 
